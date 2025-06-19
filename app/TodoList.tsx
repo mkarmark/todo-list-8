@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic } from "react";
 import { addTodo, removeTodo } from "./actions";
 
 interface TodoItem {
@@ -9,16 +9,35 @@ interface TodoItem {
 }
 
 export default function TodoList({ initialTodos }: { initialTodos: TodoItem[] }) {
+  const [optimisticTodos, setOptimisticTodos] = useOptimistic(
+    initialTodos,
+    (state, { action, todo }: { action: string; todo: TodoItem | string }) => {
+      switch (action) {
+        case "add":
+          return [...state, todo as TodoItem];
+        case "remove":
+          return state.filter((t) => t.id !== todo);
+        default:
+          return state;
+      }
+    }
+  );
   const [newTodo, setNewTodo] = useState("");
 
   const handleAddTodo = async () => {
     if (newTodo.trim() !== "") {
-      await addTodo(newTodo);
+      const newTodoItem = {
+        id: `temp-${Date.now()}`,
+        text: newTodo,
+      };
+      setOptimisticTodos({ action: "add", todo: newTodoItem });
       setNewTodo("");
+      await addTodo(newTodo);
     }
   };
 
   const handleRemoveTodo = async (id: string) => {
+    setOptimisticTodos({ action: "remove", todo: id });
     await removeTodo(id);
   };
 
@@ -54,7 +73,7 @@ export default function TodoList({ initialTodos }: { initialTodos: TodoItem[] })
         </button>
       </div>
       <ul>
-        {initialTodos.map((todo) => (
+        {optimisticTodos.map((todo) => (
           <li
             key={todo.id}
             className="flex items-center justify-between bg-gray-700 p-4 rounded-lg mb-2 shadow-sm"
