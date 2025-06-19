@@ -39,6 +39,7 @@ export async function addTodo(text: string) {
     const newTodo = {
         key: `todo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         value: text,
+        version: "1.1", // Force a change to invalidate cache
     };
 
     const res = await fetch(`${DB_HOST}/keyValuePairs/createOrUpdate`, {
@@ -48,6 +49,7 @@ export async function addTodo(text: string) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(newTodo),
+        cache: 'no-store',
     });
 
     if (!res.ok) {
@@ -65,6 +67,7 @@ export async function removeTodo(id: string) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ key: id }),
+        cache: 'no-store',
     });
 
     if (!res.ok) {
