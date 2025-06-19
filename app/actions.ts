@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-const DB_HOST = process.env.DB_HOST;
-const DB_TOKEN = process.env.DB_TOKEN;
+// WARNING: Hardcoding credentials is not secure.
+// This is a workaround for the current deployment environment.
+const DB_HOST = "https://todo-list-db-8--mk060700v11nl.data.appgroupstest3.mitalicustomdomain.net";
+const DB_TOKEN = "a3a761ff4851472c8648ce58d8c4ef66";
 
 interface Todo {
   id: string;
